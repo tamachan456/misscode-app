@@ -3,13 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>ミスコード入力_文字サイズ最大化版</title>
-
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#4a5d73">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
+<title>ミスコード入力_最終調整版</title>
 <style>
 :root {
     --bg-a: linear-gradient(135deg, #4a5d73, #66788f);
@@ -37,33 +31,11 @@ body {
 
 body.player-b-mode { background: var(--bg-b); }
 
-/* --- 横向き警告画面 --- */
-#orientation-lock {
-    display: none;
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: #000;
-    color: #fff;
-    z-index: 10000;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-}
-@media screen and (orientation: landscape) {
-    #orientation-lock { display: flex; }
-    .container { display: none; }
-}
-@media screen and (orientation: portrait) {
-    #orientation-lock { display: none; }
-    .container { display: flex; }
-}
-
 .container {
-    display: flex; /* 初期状態をflexに */
+    display: flex;
     flex-direction: column;
     height: 100dvh;
-    padding: 6px;
+    padding: 4px;
 }
 
 .header-info {
@@ -76,25 +48,38 @@ body.player-b-mode { background: var(--bg-b); }
     padding: 4px;
 }
 
+/* 出力エリア：動的に伸び、下の要素を押し潰す */
 .output {
     background: rgba(255, 255, 255, 0.95);
     color: #222;
     border-radius: 10px;
-    padding: 8px;
-    font-size: 24px;
+    padding: 6px 12px;
+    font-size: 20px;
     font-weight: bold;
-    height: 70px; 
+    min-height: 80px; 
+    flex-shrink: 0;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     white-space: pre-wrap;
     word-break: break-all;
-    margin-bottom: 6px;
-    overflow-y: auto;
+    margin-bottom: 4px;
+    line-height: 1.2;
+}
+
+.score-row { display: block; margin-bottom: 2px; }
+
+/* 出力エリアの得点（2サイズ縮小済み） */
+.score-big {
+    font-size: 24px; 
+    color: #d32f2f;
+    margin-right: 8px;
+    font-weight: 900;
 }
 
 .bar {
     display: flex;
-    gap: 6px;
-    margin-bottom: 6px;
+    gap: 4px;
+    margin-bottom: 4px;
+    flex-shrink: 0;
 }
 .bar button {
     flex: 1;
@@ -109,17 +94,24 @@ body.player-b-mode { background: var(--bg-b); }
 
 .btn-undo-a { background: var(--color-a) !important; }
 .btn-undo-b { background: var(--color-b) !important; }
-button.disabled-undo { opacity: 0.15 !important; filter: grayscale(1); pointer-events: none; }
+button.disabled-undo { opacity: 0.15 !important; pointer-events: none; }
 
-.content-area { flex: 1; overflow: hidden; }
-.player-panel { display: none; height: 100%; }
-.player-panel.active { display: block; }
+.content-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.player-panel { height: 100%; display: flex; flex-direction: column; }
 
 .sections {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 4px;
     height: 100%;
+    flex: 1;
 }
 
 .section {
@@ -129,18 +121,18 @@ button.disabled-undo { opacity: 0.15 !important; filter: grayscale(1); pointer-e
     padding: 2px;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
+    min-height: 0;
 }
 
 .section-title {
-    font-size: 16px;
-    padding: 2px 0;
+    font-size: 15px;
+    padding-bottom: 2px;
     margin-bottom: 2px;
-    border-bottom: 2px solid rgba(255,255,255,0.3);
+    border-bottom: 1px solid rgba(255,255,255,0.3);
     color: #ffeb3b;
     text-align: center;
     font-weight: 900;
-    letter-spacing: 1px;
+    flex-shrink: 0;
 }
 
 .btn-item {
@@ -149,74 +141,59 @@ button.disabled-undo { opacity: 0.15 !important; filter: grayscale(1); pointer-e
     align-items: center;
     justify-content: flex-end;
     gap: 4px;
-    padding: 4px 1px;
-    flex: 1
-    padding-right: 15px;
+    flex: 1;
+    min-height: 0;
 }
 
 .code-btn {
-    width: 48px;
-    height: 48px;
-    min-width: 48px;
+    width: 46px;
+    height: 46px;
+    min-width: 46px;
     border-radius: 50%;
     border: 1px solid rgba(255,255,255,0.2);
-    font-size: 24px;
+    font-size: 22px;
     font-weight: 900;
     color: #fff;
     background: linear-gradient(145deg, #555, #1a1a1a);
-    box-shadow: inset 2px 2px 4px rgba(255,255,255,0.15), 2px 4px 6px rgba(0,0,0,0.4);
     display: flex; justify-content: center; align-items: center;
 }
 
 .code-label {
-    font-size: 15px;
+    font-size: 14px; 
     font-weight: 900;
     color: #fff;
-    line-height: 1.0;
+    line-height: 1.0; 
     text-align: right;
     flex: 1;
-    white-space: pre-line;
-    text-shadow: 2px 2px 3px rgba(0,0,0,0.8);
 }
 
-.code-btn.flash {
-    background: #ffd600 !important;
-    color: #000 !important;
-    box-shadow: 0 0 20px 10px #ffd600 !important;
-}
+.code-btn.flash { background: #ffd600 !important; color: #000 !important; }
 
-.footer-nav { display: flex; gap: 12px; height: 85px; padding-top: 6px; }
-.nav-btn { flex: 1; border: 3px solid rgba(255,255,255,0.2); border-radius: 18px; font-size: 28px; font-weight: bold; color: #fff; opacity: 0.4; }
+.footer-nav { display: flex; gap: 8px; height: 75px; padding-top: 4px; flex-shrink: 0; }
+.nav-btn { flex: 1; border: 2px solid rgba(255,255,255,0.2); border-radius: 12px; font-size: 24px; font-weight: bold; color: #fff; opacity: 0.4; }
 .nav-btn.active { opacity: 1; border-color: #fff; }
-.btnA { background: linear-gradient(145deg, #3a7ab3, #254d71); }
-.btnB { background: linear-gradient(145deg, #a63a3a, #712525); }
+.btnA { background: var(--color-a); }
+.btnB { background: var(--color-b); }
 
 </style>
 </head>
+<body id="mainBody">
 
-<body id="mainBody" oncontextmenu="return false;">
-
-<div id="orientation-lock">
-    <div style="font-size: 50px; margin-bottom: 10px;">🔄</div>
-    <p style="font-size: 20px; font-weight: bold;">画面を縦向きに戻してください</p>
-    <button style="margin-top:20px; padding:15px; border-radius:20px; border:none;" onclick="forcePortraitRestore()">復帰する</button>
-</div>
-
-<div class="container" id="appContainer">
-    <div class="header-info" id="statusLabel">太極拳,剣用ミスコード入力　【A選手】</div>
-    <div id="sharedOutput" class="output">A: <br>B: </div>
+<div class="container">
+    <div class="header-info" id="statusLabel">ミスコード入力　【A選手】</div>
+    <div id="sharedOutput" class="output"></div>
 
     <div class="bar">
-        <button onclick="resetAll()">全リセット</button>
+        <button onclick="calculateAndReset()">全リセット</button>
         <button id="undoA" class="btn-undo-a" onclick="undo('A')">A消す</button>
         <button id="undoB" class="btn-undo-b disabled-undo" onclick="undo('B')">B消す</button>
     </div>
 
     <div class="content-area">
-        <div id="panelA" class="player-panel active">
+        <div id="panelA" class="player-panel">
             <div class="sections" id="Asections"></div>
         </div>
-        <div id="panelB" class="player-panel">
+        <div id="panelB" class="player-panel" style="display:none;">
             <div class="sections" id="Bsections"></div>
         </div>
     </div>
@@ -234,7 +211,7 @@ let currentPlayer = 'A';
 const sectionsData = [
     {title:"器械", items:[{c:73, n:"触れる\n当たる"}, {c:74, n:"切断"}, {c:75, n:"落下"}]},
     {title:"その他", items:[{c:77, n:"静止\n時間"}, {c:78, n:"コート外"}, {c:79, n:"忘却"}]},
-    {title:"剣法・服飾", items:[{c:60, n:"掛剣\n撩剣"}, {c:61, n:"握剣"}, {c:76, n:"服飾\n不備"}]},
+    {title:"剣法・服飾", items:[{c:60, n:"撩剣\n掛剣"}, {c:61, n:"握剣"}, {c:76, n:"服飾\n不備"}]},
     {title:"腿法", items:[{c:24, n:"分脚\n蹬脚"}, {c:25, n:"擺蓮脚"}, {c:26, n:"拍脚"}]},
     {title:"歩型歩法", items:[{c:50, n:"弓歩"}, {c:53, n:"仆歩"}, {c:54, n:"歩型\n歩法"}]},
     {title:"バランス", items:[{c:70, n:"ゆれ\n移動"}, {c:71, n:"附加\n支持"}, {c:72, n:"倒れる"}]}
@@ -258,18 +235,11 @@ function switchPlayer(p) {
     document.getElementById('undoA').classList.toggle('disabled-undo', p !== 'A');
     document.getElementById('undoB').classList.toggle('disabled-undo', p !== 'B');
     document.getElementById('mainBody').classList.toggle('player-b-mode', p === 'B');
-    document.getElementById('statusLabel').innerText = "太極拳,剣用ミスコード入力　【" + p + "選手】";
-    document.getElementById('panelA').style.display = (p === 'A') ? 'block' : 'none';
-    document.getElementById('panelB').style.display = (p === 'B') ? 'block' : 'none';
+    document.getElementById('statusLabel').innerText = "ミスコード入力　【" + p + "選手】";
+    document.getElementById('panelA').style.display = (p === 'A') ? 'flex' : 'none';
+    document.getElementById('panelB').style.display = (p === 'B') ? 'flex' : 'none';
     document.getElementById('navA').classList.toggle('active', p === 'A');
     document.getElementById('navB').classList.toggle('active', p === 'B');
-}
-
-function forcePortraitRestore() {
-    window.scrollTo(0, 0);
-    document.getElementById('orientation-lock').style.display = 'none';
-    document.getElementById('appContainer').style.display = 'flex';
-    switchPlayer(currentPlayer);
 }
 
 function addCode(p, c, btn) {
@@ -281,8 +251,22 @@ function addCode(p, c, btn) {
 
 function undo(p) { codes[p].pop(); updateDisplay(); }
 
-function resetAll() {
-    if (confirm("全てのデータを消去しますか？")) {
+function getScore(player) {
+    let totalDeduction = 0;
+    codes[player].forEach(c => {
+        if (c === 71 || c === 74) totalDeduction += 2;
+        else if (c === 72 || c === 75) totalDeduction += 3;
+        else totalDeduction += 1;
+    });
+    return ((50 - totalDeduction) / 10).toFixed(2);
+}
+
+function calculateAndReset() {
+    const sA = getScore('A');
+    const sB = getScore('B');
+    // 確認ダイアログ内の得点を上下に並べ、以前より2サイズ大きく表示
+    const confirmMsg = `【 最終得点結果 】\n\n A選手： ${sA} 点\n\n B選手： ${sB} 点\n\nデータをリセットしますか？`;
+    if (confirm(confirmMsg)) {
         codes = { A: [], B: [] };
         updateDisplay();
     }
@@ -290,18 +274,15 @@ function resetAll() {
 
 function updateDisplay() {
     const out = document.getElementById("sharedOutput");
-    out.innerText = "A: " + codes.A.join(",") + "\nB: " + codes.B.join(",");
+    out.innerHTML = `<div class="score-row">A: <span class="score-big">${getScore('A')}</span> ${codes.A.join(",")}</div>` +
+                    `<div class="score-row">B: <span class="score-big">${getScore('B')}</span> ${codes.B.join(",")}</div>`;
     out.scrollTop = out.scrollHeight;
 }
+updateDisplay();
+</script>
+</body>
+</html>
 
-window.addEventListener('orientationchange', () => { setTimeout(forcePortraitRestore, 300); });
-
-/* ★ Service Worker 登録 */
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js')
-    .then(() => console.log("Service Worker Registered"))
-    .catch(err => console.log("SW Register Error:", err));
-}
 </script>
 </body>
 </html>
